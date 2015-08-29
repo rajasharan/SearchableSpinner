@@ -1,0 +1,23 @@
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+quicktime*
+
+# Intellij project files
+*.iml
+*.ipr
+*.iws
+.idea/
+
+*.sw*
+tags
+
+# generated files
+bin/
+gen/
+Wiki/
+lang*

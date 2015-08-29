@@ -16,11 +16,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".FilterDialog"
-            android:theme="@android:style/Theme.Holo.Light.Dialog"
-            />
-
     </application>
 
 </manifest>

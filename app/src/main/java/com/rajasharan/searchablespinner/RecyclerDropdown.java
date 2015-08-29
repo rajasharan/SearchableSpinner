@@ -19,8 +19,10 @@ import java.util.List;
  */
 public class RecyclerDropdown extends RecyclerView {
     private static final CharSequence [] EMPTY_LIST = new CharSequence[0];
+
     private CharSequence [] mList;
     private CharSequence [] mOriginalList;
+    private Adapter mAdapter;
 
     public RecyclerDropdown(Context context) {
         this(context, null);
@@ -32,30 +34,26 @@ public class RecyclerDropdown extends RecyclerView {
 
     public RecyclerDropdown(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
-        if (!(context instanceof FilterDialog)) {
-            throw new UnsupportedOperationException("<RecyclerDropdown> should only be inflated from an Activity");
-        }
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        setDropdownList(null);
+        setDropdownList(null, null);
         setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         addItemDecoration(new Divider(getContext()));
     }
 
-    public void setDropdownList(CharSequence[] list) {
+    public void setDropdownList(CharSequence[] list, OnClickListener listener) {
         if (list == null) {
             mList = EMPTY_LIST;
         } else {
             mList = list;
         }
-        setAdapter(new Adapter(mList, (FilterDialog) getContext()));
+        setAdapter(new Adapter(mList, listener));
     }
 
-    public void filter(String str) {
+    public void filter(String str, OnClickListener listener) {
         if (mOriginalList == null) {
             mOriginalList = mList.clone();
         }
@@ -66,16 +64,16 @@ public class RecyclerDropdown extends RecyclerView {
             }
         }
         mList = list.toArray(new CharSequence[0]);
-        setDropdownList(mList);
+        setDropdownList(mList, listener);
     }
 
     private static class Adapter extends RecyclerView.Adapter<Holder> {
         private CharSequence [] mList;
-        private FilterDialog mActivity;
+        private OnClickListener mListener;
         private ViewGroup.LayoutParams mLayoutParams;
-        public Adapter(CharSequence [] list, FilterDialog activity) {
+        public Adapter(CharSequence [] list, OnClickListener listener) {
             mList = list;
-            mActivity = activity;
+            mListener = listener;
             mLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
         }
@@ -84,7 +82,7 @@ public class RecyclerDropdown extends RecyclerView {
             TextView view = new TextView(viewGroup.getContext());
             view.setPadding(10, 15, 15, 10);
             view.setLayoutParams(mLayoutParams);
-            view.setOnClickListener(mActivity);
+            view.setOnClickListener(mListener);
             Holder holder = new Holder(view);
             return holder;
         }

@@ -1,29 +1,35 @@
 package com.rajasharan.searchablespinner;
 
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
  * Created by rajasharan on 8/28/15.
  */
-public class SearchableSpinner extends ViewGroup {
+public class SearchableSpinner extends ViewGroup implements TextWatcher, View.OnClickListener {
     private static final String TAG = "Searchable_Spinner";
-    public static final String LIST = "list";
-    public static final String SELECTION = "data";
 
-    private Intent mIntent;
     private CharSequence [] mList;
     private TextView mText;
     private TextView mDropdownArrow;
+    private AlertDialog mDialog;
+    private RecyclerDropdown mRecycler;
+    private OnSelectionChangeListener mListener;
 
     public SearchableSpinner(Context context) {
         this(context, null);
@@ -46,8 +52,6 @@ public class SearchableSpinner extends ViewGroup {
         if (mList == null) {
             throw new UnsupportedOperationException("app:list attr of SearchableSpinner is null; should point string-array resource");
         }
-        mIntent = new Intent(context, FilterDialog.class);
-        mIntent.putExtra(LIST, mList);
 
         mText = new TextView(context);
         mText.setText(mList[0]);
@@ -57,6 +61,8 @@ public class SearchableSpinner extends ViewGroup {
         mDropdownArrow = new TextView(context);
         mDropdownArrow.setText("\u25BC");
         mDropdownArrow.setLayoutParams(generateDefaultLayoutParams());
+
+        mDialog = createDialog(context);
 
         int [] paddingAttrs = new int[] {
                 android.R.attr.padding,
@@ -97,6 +103,33 @@ public class SearchableSpinner extends ViewGroup {
         return -1;
     }
 
+    private AlertDialog createDialog(Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.dialog_dropdown, this, false);
+
+        DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        int h = dm.heightPixels;
+
+        LinearLayout l = (LinearLayout) view.findViewById(R.id.layout);
+        int H = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, dm);
+        int inset = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, dm);
+        int desiredHeight = h - inset;
+
+        H = H < desiredHeight? H: desiredHeight;
+        l.getLayoutParams().height = H;
+
+        EditText filter = (EditText) view.findViewById(R.id.filter);
+        filter.setHint("\uD83D\uDD0D search");
+        filter.addTextChangedListener(this);
+
+        mRecycler = (RecyclerDropdown) view.findViewById(R.id.list);
+        mRecycler.setDropdownList(mList, this);
+
+        builder.setView(view);
+        return builder.create();
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         mText.measure(0, 0);
@@ -134,18 +167,46 @@ public class SearchableSpinner extends ViewGroup {
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_UP:
-                ((Activity)getContext()).startActivityForResult(mIntent, 1);
+                if (!mDialog.isShowing()) {
+                    mDialog.show();
+                }
         }
         return true;
     }
 
-    public void updateSelection(CharSequence str) {
+    private void updateSelection(CharSequence str) {
         mText.setText(str);
         requestLayout();
         invalidate();
+        if (mListener != null) {
+            mListener.onSelectionChanged(str.toString());
+        }
     }
 
-    public CharSequence getCurrentSelection() {
-        return mText.getText();
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        mRecycler.filter(s.toString(), this);
+    }
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+    @Override
+    public void afterTextChanged(Editable s) {
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (mDialog.isShowing()) {
+            mDialog.dismiss();
+        }
+        updateSelection(((TextView)v).getText());
+    }
+
+    public void setOnSelectionChangeListener(OnSelectionChangeListener listener) {
+        mListener = listener;
+    }
+
+    public interface OnSelectionChangeListener {
+        public void onSelectionChanged(String selection);
     }
 }

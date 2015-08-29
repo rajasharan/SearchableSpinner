@@ -34,6 +34,7 @@ public class RecyclerDropdown extends RecyclerView {
 
     public RecyclerDropdown(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mAdapter = new Adapter();
     }
 
     @Override
@@ -50,7 +51,8 @@ public class RecyclerDropdown extends RecyclerView {
         } else {
             mList = list;
         }
-        setAdapter(new Adapter(mList, listener));
+        mAdapter.init(mList, listener);
+        setAdapter(mAdapter);
     }
 
     public void filter(String str, OnClickListener listener) {
@@ -71,7 +73,7 @@ public class RecyclerDropdown extends RecyclerView {
         private CharSequence [] mList;
         private OnClickListener mListener;
         private ViewGroup.LayoutParams mLayoutParams;
-        public Adapter(CharSequence [] list, OnClickListener listener) {
+        public void init(CharSequence [] list, OnClickListener listener) {
             mList = list;
             mListener = listener;
             mLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,

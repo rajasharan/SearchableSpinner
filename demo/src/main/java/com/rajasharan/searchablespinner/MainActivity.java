@@ -3,6 +3,7 @@ package com.rajasharan.searchablespinner;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
+import com.rajasharan.widget.SearchableSpinner;
 
 public class MainActivity extends ActionBarActivity implements SearchableSpinner.OnSelectionChangeListener {
 

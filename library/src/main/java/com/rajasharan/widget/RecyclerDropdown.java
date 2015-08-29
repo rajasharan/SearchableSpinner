@@ -1,4 +1,4 @@
-package com.rajasharan.searchablespinner;
+package com.rajasharan.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -98,7 +98,7 @@ public class RecyclerDropdown extends RecyclerView {
         }
     }
 
-    private static class Holder extends RecyclerView.ViewHolder {
+    private static class Holder extends ViewHolder {
         private TextView mTextView;
         public Holder(View itemView) {
             super(itemView);
@@ -106,7 +106,7 @@ public class RecyclerDropdown extends RecyclerView {
         }
     }
 
-    private static class Divider extends RecyclerView.ItemDecoration {
+    private static class Divider extends ItemDecoration {
         private Drawable mDivider;
         public Divider(Context context) {
             TypedArray a = context.obtainStyledAttributes(new int[] {android.R.attr.listDivider});

@@ -1,4 +1,4 @@
-package com.rajasharan.searchablespinner;
+package com.rajasharan.widget;
 
 import android.app.AlertDialog;
 import android.content.Context;

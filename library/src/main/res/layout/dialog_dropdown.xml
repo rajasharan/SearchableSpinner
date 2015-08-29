@@ -12,13 +12,12 @@
         android:id="@+id/filter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="search"
         android:maxLines="1"
         android:lines="1"
         android:singleLine="true"
         />
 
-    <com.rajasharan.searchablespinner.RecyclerDropdown
+    <com.rajasharan.widget.RecyclerDropdown
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

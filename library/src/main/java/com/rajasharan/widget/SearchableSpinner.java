@@ -108,17 +108,6 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.dialog_dropdown, this, false);
 
-        DisplayMetrics dm = context.getResources().getDisplayMetrics();
-        int h = dm.heightPixels;
-
-        LinearLayout l = (LinearLayout) view.findViewById(R.id.layout);
-        int H = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, dm);
-        int inset = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, dm);
-        int desiredHeight = h - inset;
-
-        H = H < desiredHeight? H: desiredHeight;
-        l.getLayoutParams().height = H;
-
         EditText filter = (EditText) view.findViewById(R.id.filter);
         filter.setHint("\uD83D\uDD0D search");
         filter.addTextChangedListener(this);

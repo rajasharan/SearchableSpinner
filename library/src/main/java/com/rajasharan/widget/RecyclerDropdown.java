@@ -1,12 +1,16 @@
 package com.rajasharan.widget;
 
 import android.content.Context;
-import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -18,6 +22,7 @@ import java.util.List;
  * Created by rajasharan on 8/28/15.
  */
 public class RecyclerDropdown extends RecyclerView {
+    private static final String TAG = "RecyclerDropdown";
     private static final CharSequence [] EMPTY_LIST = new CharSequence[0];
 
     private CharSequence [] mList;
@@ -42,10 +47,10 @@ public class RecyclerDropdown extends RecyclerView {
         super.onFinishInflate();
         setDropdownList(null, null);
         setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        addItemDecoration(new Divider(getContext()));
+        addItemDecoration(new BitmapDecorator(getContext()));
     }
 
-    public void setDropdownList(CharSequence[] list, OnClickListener listener) {
+    public void setDropdownList(CharSequence [] list, OnClickListener listener) {
         if (list == null) {
             mList = EMPTY_LIST;
         } else {
@@ -72,25 +77,23 @@ public class RecyclerDropdown extends RecyclerView {
     private static class Adapter extends RecyclerView.Adapter<Holder> {
         private CharSequence [] mList;
         private OnClickListener mListener;
-        private ViewGroup.LayoutParams mLayoutParams;
         public void init(CharSequence [] list, OnClickListener listener) {
             mList = list;
             mListener = listener;
-            mLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
         }
         @Override
-        public Holder onCreateViewHolder(ViewGroup viewGroup, int i) {
-            TextView view = new TextView(viewGroup.getContext());
-            view.setPadding(10, 15, 15, 10);
-            view.setLayoutParams(mLayoutParams);
-            view.setOnClickListener(mListener);
+        public Holder onCreateViewHolder(ViewGroup viewGroup, int type) {
+            LayoutInflater inflater = (LayoutInflater) viewGroup.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.recycler_itemviews, viewGroup, false);
+            view.setDrawingCacheEnabled(true);
             Holder holder = new Holder(view);
+            holder.mTextView.setGravity(Gravity.CENTER);
+            holder.mTextView.setOnClickListener(mListener);
             return holder;
         }
         @Override
-        public void onBindViewHolder(Holder holder, int i) {
-            holder.mTextView.setText(mList[i]);
+        public void onBindViewHolder(Holder holder, int pos) {
+            holder.mTextView.setText(mList[pos]);
         }
         @Override
         public int getItemCount() {
@@ -106,22 +109,44 @@ public class RecyclerDropdown extends RecyclerView {
         }
     }
 
-    private static class Divider extends ItemDecoration {
-        private Drawable mDivider;
-        public Divider(Context context) {
-            TypedArray a = context.obtainStyledAttributes(new int[] {android.R.attr.listDivider});
-            mDivider = a.getDrawable(0);
-            a.recycle();
+    private static class BitmapDecorator extends ItemDecoration {
+        private Paint mWhitePaint;
+
+        public BitmapDecorator(Context context) {
+            mWhitePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mWhitePaint.setStyle(Paint.Style.FILL);
+            mWhitePaint.setColor(Color.WHITE);
         }
 
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, State state) {
-            for (int i=0; i<parent.getChildCount()-1; i++) {
+            transformChildren(c, parent);
+        }
+
+        private void transformChildren(Canvas canvas, RecyclerView parent) {
+            int childCount = parent.getChildCount();
+            int middlePos = (childCount - 1)/2;
+
+            canvas.drawColor(Color.WHITE);
+
+            for (int i=0; i < childCount; i++) {
+                if (i == middlePos) {
+                    continue;
+                }
                 View child = parent.getChildAt(i);
-                mDivider.setBounds(parent.getLeft(), child.getBottom(),
-                        parent.getRight(), child.getBottom()+mDivider.getIntrinsicHeight());
-                mDivider.draw(c);
+                Bitmap b = child.getDrawingCache();
+                canvas.drawBitmap(b, child.getLeft(), child.getTop(), null);
             }
+
+            View child = parent.getChildAt(middlePos);
+            Rect r = new Rect();
+            child.getHitRect(r);
+            Bitmap b = child.getDrawingCache();
+
+            canvas.save();
+            canvas.scale(2.0f, 2.0f, r.centerX(), r.centerY());
+            canvas.drawBitmap(b, child.getLeft(), child.getTop(), null);
+            canvas.restore();
         }
     }
 }

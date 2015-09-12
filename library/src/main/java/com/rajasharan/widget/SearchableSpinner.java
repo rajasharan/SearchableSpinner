@@ -106,7 +106,7 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
     private AlertDialog createDialog(Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.dialog_dropdown, this, false);
+        View view = inflater.inflate(R.layout.dialog_dropdown, null);
 
         EditText filter = (EditText) view.findViewById(R.id.filter);
         filter.setHint("\uD83D\uDD0D search");
@@ -114,6 +114,7 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
 
         mRecycler = (RecyclerDropdown) view.findViewById(R.id.list);
         mRecycler.setDropdownList(mList, this);
+        //mRecycler.scrollToPosition(Integer.MAX_VALUE/2);
 
         builder.setView(view);
         return builder.create();

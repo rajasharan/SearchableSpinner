@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class RecyclerDropdown extends RecyclerView {
     private static final String TAG = "RecyclerDropdown";
-    private static final CharSequence [] EMPTY_LIST = new CharSequence[0];
+    private static final CharSequence [] EMPTY_LIST = new CharSequence[] {Adapter.EMPTY_TEXT};
 
     private CharSequence [] mList;
     private CharSequence [] mOriginalList;
@@ -46,6 +46,7 @@ public class RecyclerDropdown extends RecyclerView {
     protected void onFinishInflate() {
         super.onFinishInflate();
         setDropdownList(null, null);
+        setAdapter(mAdapter);
         setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         addItemDecoration(new BitmapDecorator(getContext()));
     }
@@ -56,8 +57,8 @@ public class RecyclerDropdown extends RecyclerView {
         } else {
             mList = list;
         }
-        mAdapter.init(mList, listener);
-        setAdapter(mAdapter);
+        mAdapter.init(mList, listener, this);
+        mAdapter.notifyDataSetChanged();
     }
 
     public void filter(String str, OnClickListener listener) {
@@ -70,21 +71,58 @@ public class RecyclerDropdown extends RecyclerView {
                 list.add(cs);
             }
         }
-        mList = list.toArray(new CharSequence[0]);
+        if (list.size() == 0) {
+            mList = EMPTY_LIST;
+            listener = null;
+        } else {
+            mList = list.toArray(new CharSequence[list.size()]);
+        }
         setDropdownList(mList, listener);
     }
 
     private static class Adapter extends RecyclerView.Adapter<Holder> {
+        private static final int FIRST_TYPE = 0;
+        private static final int NORMAL_TYPE = 1;
+        private static final int LAST_TYPE = 2;
+        private static final int EMPTY_TYPE = 3;
+
+        private static final String EMPTY_TEXT = "NO ITEMS";
+
         private CharSequence [] mList;
         private OnClickListener mListener;
-        public void init(CharSequence [] list, OnClickListener listener) {
+        private RecyclerView mRecycler;
+
+        public void init(CharSequence [] list, OnClickListener listener, RecyclerView recycler) {
             mList = list;
             mListener = listener;
+            mRecycler = recycler;
         }
         @Override
         public Holder onCreateViewHolder(ViewGroup viewGroup, int type) {
             LayoutInflater inflater = (LayoutInflater) viewGroup.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View view = inflater.inflate(R.layout.recycler_itemviews, viewGroup, false);
+            View view;
+            switch (type) {
+                case NORMAL_TYPE: {
+                    view = inflater.inflate(R.layout.recycler_itemviews, viewGroup, false);
+                    break;
+                }
+                case FIRST_TYPE: {
+                    view = inflater.inflate(R.layout.recycler_itemviews_firsttype, viewGroup, false);
+                    break;
+                }
+                case LAST_TYPE: {
+                    view = inflater.inflate(R.layout.recycler_itemviews_lasttype, viewGroup, false);
+                    break;
+                }
+                default /*EMPTY_TYPE*/: {
+                    view = inflater.inflate(R.layout.recycler_itemviews_firsttype, viewGroup, false);
+                    view.setDrawingCacheEnabled(true);
+                    Holder holder = new Holder(view);
+                    holder.mTextView.setGravity(Gravity.CENTER);
+                    holder.mTextView.setOnClickListener(null);
+                    return holder;
+                }
+            }
             view.setDrawingCacheEnabled(true);
             Holder holder = new Holder(view);
             holder.mTextView.setGravity(Gravity.CENTER);
@@ -93,11 +131,26 @@ public class RecyclerDropdown extends RecyclerView {
         }
         @Override
         public void onBindViewHolder(Holder holder, int pos) {
-            holder.mTextView.setText(mList[pos]);
+            holder.mTextView.setText(mList[pos % mList.length]);
         }
         @Override
         public int getItemCount() {
-            return mList.length;
+            return Integer.MAX_VALUE;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (mList[position % mList.length].toString().equals(EMPTY_TEXT)) {
+                return EMPTY_TYPE;
+            }
+
+            if (position == 0) {
+                return FIRST_TYPE;
+            } else if (position == mList.length - 1) {
+                return LAST_TYPE;
+            } else {
+                return NORMAL_TYPE;
+            }
         }
     }
 
@@ -127,26 +180,33 @@ public class RecyclerDropdown extends RecyclerView {
             int childCount = parent.getChildCount();
             int middlePos = (childCount - 1)/2;
 
-            canvas.drawColor(Color.WHITE);
+            canvas.drawARGB(255, 255, 255, 255);
 
             for (int i=0; i < childCount; i++) {
                 if (i == middlePos) {
                     continue;
                 }
                 View child = parent.getChildAt(i);
-                Bitmap b = child.getDrawingCache();
-                canvas.drawBitmap(b, child.getLeft(), child.getTop(), null);
+                if (child != null) {
+                    Bitmap b = child.getDrawingCache();
+                    if (b != null) {
+                        canvas.drawBitmap(b, child.getLeft(), child.getTop(), null);
+                    }
+                }
             }
 
             View child = parent.getChildAt(middlePos);
-            Rect r = new Rect();
-            child.getHitRect(r);
-            Bitmap b = child.getDrawingCache();
-
-            canvas.save();
-            canvas.scale(2.0f, 2.0f, r.centerX(), r.centerY());
-            canvas.drawBitmap(b, child.getLeft(), child.getTop(), null);
-            canvas.restore();
+            if (child != null) {
+                Rect r = new Rect();
+                child.getHitRect(r);
+                Bitmap b = child.getDrawingCache();
+                if (b != null) {
+                    canvas.save();
+                    canvas.scale(2.0f, 2.0f, r.centerX(), r.centerY());
+                    canvas.drawBitmap(b, child.getLeft(), child.getTop(), null);
+                    canvas.restore();
+                }
+            }
         }
     }
 }

@@ -45,39 +45,50 @@ public class RecyclerDropdown extends RecyclerView {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        setDropdownList(null, null);
+        setDropdownList(null, null, false);
         setAdapter(mAdapter);
         setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         addItemDecoration(new BitmapDecorator(getContext()));
     }
 
-    public void setDropdownList(CharSequence [] list, OnClickListener listener) {
+    public void setDropdownList(CharSequence [] list, OnClickListener listener, boolean repeatInLoop) {
         if (list == null) {
             mList = EMPTY_LIST;
         } else {
             mList = list;
         }
-        mAdapter.init(mList, listener, this);
+        mAdapter.init(mList, listener, repeatInLoop);
         mAdapter.notifyDataSetChanged();
+        if (repeatInLoop) {
+            scrollToPosition(Integer.MAX_VALUE / 2);
+        }
     }
 
     public void filter(String str, OnClickListener listener) {
+        boolean repeateInLoop = false;
         if (mOriginalList == null) {
             mOriginalList = mList.clone();
         }
-        List<CharSequence> list = new ArrayList<>();
-        for (CharSequence cs: mOriginalList) {
-            if (cs.toString().toUpperCase().contains(str.toUpperCase())) {
-                list.add(cs);
+        if (str != null && str.trim().length() != 0) {
+            List<CharSequence> list = new ArrayList<>();
+            for (CharSequence cs : mOriginalList) {
+                if (cs.toString().toUpperCase().contains(str.toUpperCase())) {
+                    list.add(cs);
+                }
             }
+            if (list.size() == 0) {
+                mList = EMPTY_LIST;
+                listener = null;
+            } else {
+                mList = list.toArray(new CharSequence[list.size()]);
+            }
+            repeateInLoop = false;
         }
-        if (list.size() == 0) {
-            mList = EMPTY_LIST;
-            listener = null;
-        } else {
-            mList = list.toArray(new CharSequence[list.size()]);
+        else {
+            mList = mOriginalList;
+            repeateInLoop = true;
         }
-        setDropdownList(mList, listener);
+        setDropdownList(mList, listener, repeateInLoop);
     }
 
     private static class Adapter extends RecyclerView.Adapter<Holder> {
@@ -90,12 +101,12 @@ public class RecyclerDropdown extends RecyclerView {
 
         private CharSequence [] mList;
         private OnClickListener mListener;
-        private RecyclerView mRecycler;
+        private boolean mLoop;
 
-        public void init(CharSequence [] list, OnClickListener listener, RecyclerView recycler) {
+        public void init(CharSequence [] list, OnClickListener listener, boolean repeat) {
             mList = list;
             mListener = listener;
-            mRecycler = recycler;
+            mLoop = repeat;
         }
         @Override
         public Holder onCreateViewHolder(ViewGroup viewGroup, int type) {
@@ -135,7 +146,7 @@ public class RecyclerDropdown extends RecyclerView {
         }
         @Override
         public int getItemCount() {
-            return Integer.MAX_VALUE;
+            return mLoop? Integer.MAX_VALUE : mList.length;
         }
 
         @Override

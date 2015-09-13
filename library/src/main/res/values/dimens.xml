@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="item_height">40dp</dimen>
+    <dimen name="item_margin">0dp</dimen>
+    <dimen name="item_inset">2dp</dimen>
+    <dimen name="recycler_height">200dp</dimen>
+</resources>

@@ -8,14 +8,11 @@ import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -113,8 +110,9 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
         filter.addTextChangedListener(this);
 
         mRecycler = (RecyclerDropdown) view.findViewById(R.id.list);
-        mRecycler.setDropdownList(mList, this, true);
-        mRecycler.scrollToPosition(Integer.MAX_VALUE/2);
+        mRecycler.setOnClickListener(this);
+        mRecycler.setDropdownList(mList);
+        mRecycler.scrollToPosition(mList.length/2);
 
         builder.setView(view);
         return builder.create();
@@ -175,7 +173,7 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        mRecycler.filter(s.toString(), this);
+        mRecycler.filter(s.toString());
     }
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {

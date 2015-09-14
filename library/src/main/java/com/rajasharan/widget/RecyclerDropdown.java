@@ -113,6 +113,7 @@ public class RecyclerDropdown extends RecyclerView {
                     view = inflater.inflate(R.layout.recycler_itemviews, viewGroup, false);
                     Holder holder = new Holder(view);
                     holder.mTextView.setGravity(Gravity.CENTER);
+                    view.setTag(R.id.text, EMPTY_TEXT);
                     return holder;
                 }
                 default /*BUFFER_TYPE*/ : {

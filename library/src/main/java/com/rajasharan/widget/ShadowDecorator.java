@@ -5,12 +5,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 /**
  * Created by rajasharan on 9/13/15.
  */
 public class ShadowDecorator extends RecyclerView.ItemDecoration {
+    private static final String TAG = "ShadowDecorator";
     private static final int SHADOW_INSET = 2;
 
     private Context mContext;
@@ -77,18 +79,14 @@ public class ShadowDecorator extends RecyclerView.ItemDecoration {
         {
             View child = parent.getChildAt(middlePos);
             if (child != null) {
-                if (child.getTop() >= t) {
-                    if (child.getTop() <= (b+t)/2) {
+                child.setAlpha(0.5f);
+                int childMidPoint = (child.getTop() + child.getBottom())/2;
+                if (childMidPoint >= t && childMidPoint <= b) {
+                    if (child.getTag(R.id.text) == null) {
                         child.setScaleX(2.2f);
                         child.setScaleY(2.2f);
                         child.setOnClickListener(((RecyclerDropdown) parent).getOnClickListener());
-                    }
-                }
-                else if (child.getBottom() <= b) {
-                    if (child.getBottom() >= (t+b)/2) {
-                        child.setScaleX(2.2f);
-                        child.setScaleY(2.2f);
-                        child.setOnClickListener(((RecyclerDropdown)parent).getOnClickListener());
+                        child.setAlpha(1.0f);
                     }
                 }
             }

@@ -42,16 +42,7 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
     }
 
     private void init(Context context, AttributeSet attrs) {
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SearchableSpinner);
-        mList = a.getTextArray(R.styleable.SearchableSpinner_list);
-        a.recycle();
-
-        if (mList == null) {
-            throw new UnsupportedOperationException("app:list attr of SearchableSpinner is null; should point string-array resource");
-        }
-
         mText = new TextView(context);
-        mText.setText(mList[0]);
         mText.setTextColor(Color.BLACK);
         mText.setLayoutParams(generateDefaultLayoutParams());
 
@@ -59,7 +50,9 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
         mDropdownArrow.setText("\u25BC");
         mDropdownArrow.setLayoutParams(generateDefaultLayoutParams());
 
-        mDialog = createDialog(context);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SearchableSpinner);
+        setList(a.getTextArray(R.styleable.SearchableSpinner_list));
+        a.recycle();
 
         int [] paddingAttrs = new int[] {
                 android.R.attr.padding,
@@ -69,6 +62,14 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
         a = context.obtainStyledAttributes(attrs, paddingAttrs);
         for (int i=0; i<paddingAttrs.length; i++) {
             int temp = a.hasValue(i) ? setPadding(a.getDimensionPixelSize(i, -1), i) : -1;
+        }
+    }
+
+    public void setList(CharSequence [] list) {
+        mList = list;
+        if (mList != null && mList.length > 0) {
+            mText.setText(mList[0]);
+            mDialog = createDialog(getContext());
         }
     }
 
@@ -155,7 +156,7 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_UP:
-                if (!mDialog.isShowing()) {
+                if (mDialog != null && !mDialog.isShowing()) {
                     mDialog.show();
                 }
         }

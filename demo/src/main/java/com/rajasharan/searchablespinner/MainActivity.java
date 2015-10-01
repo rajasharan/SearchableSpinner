@@ -6,16 +6,21 @@ import android.widget.Toast;
 import com.rajasharan.widget.SearchableSpinner;
 
 public class MainActivity extends ActionBarActivity implements SearchableSpinner.OnSelectionChangeListener {
-
-    private SearchableSpinner mSpinner;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSpinner = (SearchableSpinner) findViewById(R.id.search);
-        mSpinner.setOnSelectionChangeListener(this);
+        SearchableSpinner spinner1 = (SearchableSpinner) findViewById(R.id.search1);
+        spinner1.setOnSelectionChangeListener(this);
+
+        SearchableSpinner spinner2 = (SearchableSpinner) findViewById(R.id.search2);
+        String [] list = {"ONE", "TWO"};
+        spinner2.setList(list);
+
+        SearchableSpinner spinner3 = (SearchableSpinner) findViewById(R.id.search3);
+        spinner3.setList(getResources().getStringArray(R.array.all_languages));
     }
 
     @Override

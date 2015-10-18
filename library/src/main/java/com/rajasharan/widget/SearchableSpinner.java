@@ -172,6 +172,13 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
         }
     }
 
+    public String getSelectedItem() {
+        if (mText != null) {
+            return mText.getText().toString();
+        }
+        return null;
+    }
+
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         mRecycler.filter(s.toString());

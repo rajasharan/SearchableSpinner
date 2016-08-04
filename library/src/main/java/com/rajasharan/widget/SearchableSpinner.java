@@ -115,6 +115,7 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
         filter.setHint("\uD83D\uDD0D "+hintText);
         filter.addTextChangedListener(this);
 		
+        btnClear = (Button) view.findViewById(R.id.btn_clear);
         btnClear.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {

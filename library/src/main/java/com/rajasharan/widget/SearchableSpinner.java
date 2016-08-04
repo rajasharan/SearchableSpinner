@@ -20,6 +20,7 @@ import android.widget.TextView;
  */
 public class SearchableSpinner extends ViewGroup implements TextWatcher, View.OnClickListener {
     private static final String TAG = "Searchable_Spinner";
+	private static String hintText="Search";
 
     private CharSequence [] mList;
     private TextView mText;
@@ -107,7 +108,7 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
         View view = inflater.inflate(R.layout.dialog_dropdown, null);
 
         EditText filter = (EditText) view.findViewById(R.id.filter);
-        filter.setHint("\uD83D\uDD0D search");
+        filter.setHint("\uD83D\uDD0D "+hintText);
         filter.addTextChangedListener(this);
 
         mRecycler = (RecyclerDropdown) view.findViewById(R.id.list);
@@ -204,5 +205,9 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
 
     public interface OnSelectionChangeListener {
         public void onSelectionChanged(String selection);
+    }
+	
+	public void setHintText(String text){
+        this.hintText = text;
     }
 }

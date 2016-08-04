@@ -17,6 +17,7 @@ public class MainActivity extends ActionBarActivity implements SearchableSpinner
 
         SearchableSpinner spinner2 = (SearchableSpinner) findViewById(R.id.search2);
         String [] list = {"ONE", "TWO"};
+		spinner2.setHintText("Find");
         spinner2.setList(list);
 
         SearchableSpinner spinner3 = (SearchableSpinner) findViewById(R.id.search3);

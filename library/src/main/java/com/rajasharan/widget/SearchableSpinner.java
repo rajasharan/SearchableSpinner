@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -28,6 +29,9 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
     private AlertDialog mDialog;
     private RecyclerDropdown mRecycler;
     private OnSelectionChangeListener mListener;
+	private EditText filter;
+    private Button btnClear;
+    private View view;
 
     public SearchableSpinner(Context context) {
         this(context, null);
@@ -105,11 +109,18 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
     private AlertDialog createDialog(Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.dialog_dropdown, null);
+        view = inflater.inflate(R.layout.dialog_dropdown, null);
 
-        EditText filter = (EditText) view.findViewById(R.id.filter);
+        filter = (EditText) view.findViewById(R.id.filter);
         filter.setHint("\uD83D\uDD0D "+hintText);
         filter.addTextChangedListener(this);
+		
+        btnClear.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                filter.setText("");
+            }
+        });
 
         mRecycler = (RecyclerDropdown) view.findViewById(R.id.list);
         mRecycler.setOnClickListener(this);
@@ -183,6 +194,13 @@ public class SearchableSpinner extends ViewGroup implements TextWatcher, View.On
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         mRecycler.filter(s.toString());
+		
+		btnClear = (Button)view.findViewById(R.id.btn_clear);
+        if (!filter.getText().toString().equals("")) {
+            btnClear.setVisibility(View.VISIBLE);
+        } else {
+            btnClear.setVisibility(View.GONE);
+        }
     }
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
